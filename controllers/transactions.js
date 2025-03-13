@@ -14,7 +14,7 @@ const getAll = async (req, res) => {
 const getSingle = async (req, res) => {
     //#swagger.tags=['Transactions']
     const transactionId = new ObjectId(req.params.id);
-    const result = await mongodb.getDatabase().db().collection('transactions').find({ transactionId: transactionId});
+    const result = await mongodb.getDatabase().db().collection('transactions').find({ _id: transactionId});
     result.toArray().then((transactions) => {
         res.setHeader('Content-Type', 'application/json');
         res.status(200).json(transactions[0]);
@@ -65,7 +65,7 @@ const deleteTransaction = async (req, res) => {
     }
 
     const transactionId = new ObjectId(req.params.id);
-    const reponse = await mongodb.getDatabase().db().collection('transactions').deleteOne({ transactionId: transactionId });
+    const reponse = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
     if (response.deletedCount > 0) {
         res.status(204).send();
     } else {

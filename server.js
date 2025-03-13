@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const mongodb = require('./db/connect');
-// Change contacts to appropriately reflect database
 const transactionsRoutes = require('./routes/transactions');
 const usersRoutes = require('./routes/users');
 const swaggerUi = require('swagger-ui-express');
