@@ -50,7 +50,11 @@ const updateTransaction = async (req, res) => {
         date: new Date(), // get the current timestamp
         status: req.body.status
     };
-    const response = await mongodb.getDatabase().db().collection('transactions').updateOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('transactions').updateOne(
+        { _id: transactionId },
+        { $set: transaction }
+    );
+
     if (response.modifiedCount > 0) {
         res.status(200).send();
     } else {
@@ -65,7 +69,7 @@ const deleteTransaction = async (req, res) => {
     }
 
     const transactionId = new ObjectId(req.params.id);
-    const reponse = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
+    const response = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
     if (response.deletedCount > 0) {
         res.status(204).send();
     } else {

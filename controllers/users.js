@@ -23,7 +23,7 @@ const getSingle = async (req, res) => {
 
 const createUser = async (req, res) => {
     //#swagger.tags=['Users']
-    const transaction = {
+    const user = {
         userId: req.body.userId,
         name: req.body.name,
         email: req.body.email,
@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
         isActive: req.body.isActive,
         roles: req.body.roles || []
     };
-    const response = await mongodb.getDatabase().db().collection('users').insertOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('users').insertOne(user);
     if (response.acknowledged) {
         res.status(200).send();
     } else {
@@ -43,7 +43,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
     //#swagger.tags=['Users']
     const userId = new ObjectId(req.params.id);
-    const transaction = {
+    const user = {
         userId: req.body.userId,
         name: req.body.name,
         email: req.body.email,
@@ -51,7 +51,10 @@ const updateUser = async (req, res) => {
         isActive: req.body.isActive,
         roles: req.body.roles || []
     };
-    const response = await mongodb.getDatabase().db().collection('users').updateOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('users').updateOne(
+        { _id: userId },
+        { $set: user}
+    );
     if (response.modifiedCount > 0) {
         res.status(200).send();
     } else {
@@ -66,7 +69,7 @@ const deleteUser = async (req, res) => {
     }
 
     const userId = new ObjectId(req.params.id);
-    const reponse = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
+    const response = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
     if (response.deletedCount > 0) {
         res.status(204).send();
     } else {

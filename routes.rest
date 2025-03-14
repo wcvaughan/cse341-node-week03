@@ -1,0 +1,87 @@
+// LOCALHOST USERS
+### Get all users
+Get http://localhost:8080/users
+
+### Get user by id
+GET http://localhost:8080/users/67cef3a286596de53be93215
+
+### Create user
+POST http://localhost:8080/users HTTP/1.1
+content-type: application/json
+
+{
+    "_id": "67cef3a286596de53be93215",
+    "userId": 7,
+    "name": "George White",
+    "email": "george@example.com",
+    "age": 37,
+    "createdAt": "2024-03-01T11:50:00Z",
+    "isActive": true,
+    "roles": [
+      "admin" ]
+}
+
+### Put user
+PUT http://localhost:8080/users/67d455c02a95937d8f75e7f0
+content-type: application/json
+
+{
+    "_id": "67cef3a286596de53be93212",
+    "userId": 4,
+    "name": "Diana Miller",
+    "email": "diana@example.com",
+    "age": 27,
+    "createdAt": "2024-01-05T12:20:00Z",
+    "isActive": true,
+    "roles": [
+      "editor"
+    ]
+}
+
+### Delete user
+DELETE http://localhost:8080/users/67d455c02a95937d8f75e7f0
+
+
+
+
+
+
+// LOCALHOST TRANSACTIONS
+### Get all transactions
+Get http://localhost:8080/transactions
+
+### Get transaction by id
+GET http://localhost:8080/transactions/67cef3bd86596de53be93224
+
+### Create transaction
+POST http://localhost:8080/transactions HTTP/1.1
+content-type: application/json
+
+{
+    "_id": "67cef3bd86596de53be9321c",
+    "transactionId": 101,
+    "userId": "67cef3a286596de53be9320f",
+    "amount": 250.75,
+    "currency": "USD",
+    "type": "credit",
+    "date": "2024-03-09T10:30:00Z",
+    "status": "completed"
+}
+
+### Put transaction
+PUT http://localhost:8080/transactions/67d456742a95937d8f75e7f1
+content-type: application/json
+
+{
+    "_id": "67cef3bd86596de53be93221",
+    "transactionId": 106,
+    "userId": "67cef3a286596de53be93214",
+    "amount": 300,
+    "currency": "USD",
+    "type": "debit",
+    "date": "2024-03-04T08:20:00Z",
+    "status": "pending"
+}
+
+### Delete transaction
+DELETE http://localhost:8080/transactions/67d456742a95937d8f75e7f1
