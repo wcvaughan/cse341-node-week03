@@ -13,8 +13,6 @@ const handleValidatorErrors = (req, res, next) => {
     next();
 };
 
-const transactionsController = require('../controllers/transactions');
-
 // transaction controller actions
 router.get('/', getAll);
 

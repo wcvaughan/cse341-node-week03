@@ -1,10 +1,11 @@
 const express = require('express');
-const { getAll, getSingle, createUser, updateUser, deleteUser } = require('../controllers/users');
-const { validateUser, validateId } = require('../middleware/validation');
+const { registerUser, loginUser, logoutUser, getCurrentUser } = require('../controllers/users');
+const { validateUser } = require('../middleware/validation');
 const { validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// Middleware to handle validation errors
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -13,15 +14,10 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
-// user controller actions
-router.get('/', getAll);
-
-router.get('/:id', validateId, handleValidationErrors, getSingle);
-
-router.post('/', validateUser, handleValidationErrors, createUser);
-
-router.put('/:id', validateId, validateUser, handleValidationErrors, updateUser);
-
-router.delete('/:id', validateId, handleValidationErrors, deleteUser);
+// User authentication routes
+router.post('/register', validateUser, handleValidationErrors, registerUser);
+router.post('/login', loginUser);
+router.post('/logout', logoutUser);
+router.get('/current', getCurrentUser);
 
 module.exports = router;

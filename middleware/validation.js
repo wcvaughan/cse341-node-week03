@@ -8,12 +8,19 @@ const validateTransaction = [
     body('status').optional().isIn(['pending', 'completed', 'failed']).withMessage('Invalid status'),
 ];
 
-const validateUser = [
-    body('name').isString().isLength({ min: 2 }).withMessage('Name must be at least 2 characters long'),
-    body('email').isEmail().withMessage('Invalid email format'),
+const validateCustomer = [
+    body('name').trim().isString().isLength({ min: 2 }).withMessage('Name must be at least 2 characters long'),
+    body('email').normalizeEmail().isEmail().withMessage('Invalid email format'),
     body('age').optional().isInt({ min: 0 }).withMessage('Age must be a non-negative number'),
     body('isActive').optional().isBoolean().withMessage('isActive must be a boolean value'),
-    body('roles').optional().isArray().withMessage('Roles must be an array'),
+    body('roles').optional().isArray().custom((arr) => arr.every(role => typeof role === 'string')),
+];
+
+const validateUser = [
+    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+    body('email').normalizeEmail().isEmail().withMessage('Invalid email format'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('role').optional().isIn(['admin', 'user', 'moderator']).withMessage('Invalid role'),
 ];
 
 const validateId = [
@@ -22,6 +29,7 @@ const validateId = [
 
 module.exports = {
     validateTransaction,
+    validateCustomer,
     validateUser,
     validateId
 };

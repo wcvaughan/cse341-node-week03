@@ -1,86 +1,55 @@
-const mongodb = require('../db/connect');
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
 
-const ObjectId = require('mongodb').ObjectId;
+// Register a new user
+const registerUser = async (req, res) => {
+    const { username, email, password, role } = req.body;
 
-const getAll = async (req, res) => {
-    //#swagger.tags=['Users']
-    const result = await mongodb.getDatabase().db().collection('users').find();
-    result.toArray().then((users) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(users);
+    try {
+        let user = await User.findOne({ email });
+        if (user) return res.status(400).json({ message: 'User already exists' });
+        
+        user = new User({ username, email, password, role });
+        await user.save();
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Login user
+ const loginUser = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return next(err);
+        if (!user) return res.status(400).json({ message: info.message });
+
+        req.login(user, (err) => {
+            if (err) return next(err);
+            res.json({ message: 'Login successful', user });
+        });
+    })(req, res, next);
+};
+
+// Logout user
+const logoutUser = (req, res) => {
+    req.logout((err) => {
+        if (err) return res.status(500).json({ message: 'Logout failed' });
+        res.json({ message: 'Logged out successfully' });
     });
 };
 
-const getSingle = async (req, res) => {
-    //#swagger.tags=['Users']
-    const userId = new ObjectId(req.params.id);
-    const result = await mongodb.getDatabase().db().collection('users').find({ _id: userId });
-    result.toArray().then((users) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(users[0]);
-    });
-};
-
-const createUser = async (req, res) => {
-    //#swagger.tags=['Users']
-    const user = {
-        userId: req.body.userId,
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        createdAt: new Date(),
-        isActive: req.body.isActive,
-        roles: req.body.roles || []
-    };
-    const response = await mongodb.getDatabase().db().collection('users').insertOne(user);
-    if (response.acknowledged) {
-        res.status(200).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occured while creating the user');
+// Get current user
+const getCurrentUser = (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
     }
-};
-
-const updateUser = async (req, res) => {
-    //#swagger.tags=['Users']
-    const userId = new ObjectId(req.params.id);
-    const user = {
-        userId: req.body.userId,
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        isActive: req.body.isActive,
-        roles: req.body.roles || []
-    };
-    const response = await mongodb.getDatabase().db().collection('users').updateOne(
-        { _id: userId },
-        { $set: user}
-    );
-    if (response.modifiedCount > 0) {
-        res.status(200).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occured while updating the user');
-    }
-};
-
-const deleteUser = async (req, res) => {
-    //#swagger.tags=['Users']
-    if (!ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
-    }
-
-    const userId = new ObjectId(req.params.id);
-    const response = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
-    if (response.deletedCount > 0) {
-        res.status(204).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occurred while deleting the user');
-    }
+    res.json({ message: 'Welcome, Admin!' });
 };
 
 module.exports = {
-    getAll,
-    getSingle,
-    createUser,
-    updateUser,
-    deleteUser
+    registerUser,
+    loginUser,
+    logoutUser,
+    getCurrentUser
 };
