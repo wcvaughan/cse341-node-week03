@@ -14,25 +14,31 @@ const getAll = async (req, res) => {
 const getSingle = async (req, res) => {
     //#swagger.tags=['Users']
     const userId = new ObjectId(req.params.id);
-    const result = await mongodb.getDatabase().db().collection('users').find({ _id: userId });
-    result.toArray().then((users) => {
+
+    try {
+        const result = await mongodb.getDatabase().db().collection('users').findOne({ _id: userId });
+        if (!result) {
+            return res.status(404).json({ error: 'User not found' });
+        }
         res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(users[0]);
-    });
+        res.status(200).json(result);
+
+    } catch (error) {
+        res.status(500).json({ error: 'Error retrieving user' });
+    }
 };
 
 const createUser = async (req, res) => {
     //#swagger.tags=['Users']
-    const transaction = {
-        userId: req.body.userId,
-        name: req.body.name,
+    const user = {
+        username: req.body.username,
         email: req.body.email,
-        age: req.body.age,
-        createdAt: new Date(),
+        password: req.body.password,
+        role: req.body.role,
         isActive: req.body.isActive,
-        roles: req.body.roles || []
+        createdAt: new Date()
     };
-    const response = await mongodb.getDatabase().db().collection('users').insertOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('users').insertOne(user);
     if (response.acknowledged) {
         res.status(200).send();
     } else {
@@ -43,15 +49,18 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
     //#swagger.tags=['Users']
     const userId = new ObjectId(req.params.id);
-    const transaction = {
-        userId: req.body.userId,
-        name: req.body.name,
+    const user = {
+        username: req.body.username,
         email: req.body.email,
-        age: req.body.age,
+        password: req.body.password,
+        role: req.body.role,
         isActive: req.body.isActive,
-        roles: req.body.roles || []
+        updatedAt: new Date()
     };
-    const response = await mongodb.getDatabase().db().collection('users').updateOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('users').updateOne(
+        { _id: userId },
+        { $set: user }
+    );
     if (response.modifiedCount > 0) {
         res.status(200).send();
     } else {
@@ -66,11 +75,16 @@ const deleteUser = async (req, res) => {
     }
 
     const userId = new ObjectId(req.params.id);
-    const reponse = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
-    if (response.deletedCount > 0) {
-        res.status(204).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occurred while deleting the user');
+
+    try {
+        const response = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
+        if (response.deletedCount > 0) {
+            res.status(204).send();
+        } else {
+            res.status(500).json(response.error || 'Some error occurred while deleting the user');
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting user' });
     }
 };
 

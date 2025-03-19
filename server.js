@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const mongodb = require('./db/connect');
 const transactionsRoutes = require('./routes/transactions');
+const customerRoutes = require('./routes/customers');
 const usersRoutes = require('./routes/users');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
@@ -22,6 +23,7 @@ app
     })
     .use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
     .use('/transactions', transactionsRoutes)
+    .use('/customers', customerRoutes)
     .use('/users', usersRoutes);
 
 process.on('uncaughtException', (err, origin) => {

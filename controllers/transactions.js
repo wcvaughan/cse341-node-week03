@@ -14,11 +14,17 @@ const getAll = async (req, res) => {
 const getSingle = async (req, res) => {
     //#swagger.tags=['Transactions']
     const transactionId = new ObjectId(req.params.id);
-    const result = await mongodb.getDatabase().db().collection('transactions').find({ _id: transactionId});
-    result.toArray().then((transactions) => {
+
+    try {
+        const result = await mongodb.getDatabase().db().collection('transactions').findOne({ _id: transactionId});
+        if(!result) {
+            res.status(404).json({ error: 'Transaction not found' });
+        }
         res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(transactions[0]);
-    });
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Error retrieving transaction'})
+    }
 };
 
 const createTransaction = async (req, res) => {
@@ -50,7 +56,10 @@ const updateTransaction = async (req, res) => {
         date: new Date(), // get the current timestamp
         status: req.body.status
     };
-    const response = await mongodb.getDatabase().db().collection('transactions').updateOne(transaction);
+    const response = await mongodb.getDatabase().db().collection('transactions').updateOne(
+        { _id: transactionId },
+        { $set: transaction }
+    );
     if (response.modifiedCount > 0) {
         res.status(200).send();
     } else {
@@ -65,11 +74,16 @@ const deleteTransaction = async (req, res) => {
     }
 
     const transactionId = new ObjectId(req.params.id);
-    const reponse = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
-    if (response.deletedCount > 0) {
-        res.status(204).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occurred while deleting the transaction');
+
+    try {
+        const response = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
+        if (response.deletedCount > 0) {
+            res.status(204).send();
+        } else {
+            res.status(500).json(response.error || 'Some error occurred while deleting the transaction');
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting transaction'});
     }
 };
 
