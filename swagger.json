@@ -8,7 +8,6 @@
   "host": "cse341-node-r7l4.onrender.com/api-docs/#/",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
