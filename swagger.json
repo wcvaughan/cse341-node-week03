@@ -462,19 +462,19 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
+                "customerId": {
                   "example": "any"
                 },
-                "amount": {
+                "name": {
                   "example": "any"
                 },
-                "currency": {
+                "email": {
                   "example": "any"
                 },
-                "type": {
+                "age": {
                   "example": "any"
                 },
-                "status": {
+                "isActive": {
                   "example": "any"
                 }
               }
