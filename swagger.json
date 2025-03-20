@@ -5,7 +5,7 @@
     "description": "Week03 API",
     "version": "1.0.0"
   },
-  "host": "cse341-node-r7l4.onrender.com/api-docs/#/",
+  "host": "https://cse341-node-r7l4.onrender.com",
   "basePath": "/",
   "schemes": [
     "https"
