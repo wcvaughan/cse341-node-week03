@@ -2,7 +2,7 @@ const { body, param } = require('express-validator');
 const { validationResult } = require('express-validator');
 
 const validateTransaction = [
-    body('userId').isMongoId().withMessage('Invalid user ID format'),
+    body('userId').isInt().withMessage('Invalid user ID format'),
     body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be a valid number greater than 0'),
     body('currency').isString().isLength({ min: 3, max: 3 }).withMessage('Currency be a 3-letter code'),
     body('type').isIn(['credit', 'debit']).withMessage('Type must be either "credit" or "debit"'),
