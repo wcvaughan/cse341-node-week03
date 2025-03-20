@@ -49,12 +49,11 @@ const updateCustomer = async (req, res) => {
     //#swagger.tags=['Customers']
     const customerId = new ObjectId(req.params.id);
     const customer = {
-        userId: req.body.userId,
-        amount: req.body.amount,
-        currency: req.body.currency,
-        type: req.body.type,
-        date: new Date(), // get the current timestamp
-        status: req.body.status
+        customerId: req.body.customerId,
+        name: req.body.name,
+        email: req.body.email,
+        age: req.body.age,
+        isActive: req.body.isActive
     };
     const response = await mongodb.getDatabase().db().collection('customers').updateOne(
         { _id: customerId },
