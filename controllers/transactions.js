@@ -80,7 +80,7 @@ const deleteTransaction = async (req, res) => {
         if (response.deletedCount > 0) {
             res.status(204).send();
         } else {
-            res.status(500).json(response.error || 'Some error occurred while deleting the transaction');
+            res.status(404).json(response.error || 'Transaction not found');
         }
     } catch (error) {
         res.status(500).json({ error: 'Error deleting transaction'});
