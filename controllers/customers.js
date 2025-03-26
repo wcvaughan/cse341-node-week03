@@ -4,11 +4,15 @@ const ObjectId = require('mongodb').ObjectId;
 
 const getAll = async (req, res) => {
     //#swagger.tags=['Customers']
-    const result = await mongodb.getDatabase().db().collection('customers').find();
-    result.toArray().then((customers) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(customers);
-    });
+    try {
+        const result = await mongodb.getDatabase().db().collection('customers').find();
+        result.toArray().then((customers) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).json(customers);
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error retrieving customers' });
+    }
 };
 
 const getSingle = async (req, res) => {
@@ -29,57 +33,60 @@ const getSingle = async (req, res) => {
 
 const createCustomer = async (req, res) => {
     //#swagger.tags=['Customers']
-    const customer = {
-        customerId: req.body.customerId,
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        createdAt: new Date(),
-        isActive: req.body.isActive
-    };
-    const response = await mongodb.getDatabase().db().collection('customers').insertOne(customer);
-    if (response.acknowledged) {
-        res.status(200).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occured while creating the customer');
+    try {        
+        const customer = {
+            customerId: req.body.customerId,
+            name: req.body.name,
+            email: req.body.email,
+            age: req.body.age,
+            createdAt: new Date(),
+            isActive: req.body.isActive
+        };
+        const response = await mongodb.getDatabase().db().collection('customers').insertOne(customer);
+        if (response.acknowledged) {
+            res.status(200).send();
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message || 'An error occurred while creating the customer.' });
     }
 };
 
 const updateCustomer = async (req, res) => {
     //#swagger.tags=['Customers']
-    const customerId = new ObjectId(req.params.id);
-    const customer = {
-        customerId: req.body.customerId,
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        isActive: req.body.isActive
-    };
-    const response = await mongodb.getDatabase().db().collection('customers').updateOne(
-        { _id: customerId },
-        { $set: customer }
-    );
-    if (response.modifiedCount > 0) {
-        res.status(200).send();
-    } else {
-        res.status(500).json(response.error || 'Some error occured while updating the customer');
+    try {
+        const customerId = new ObjectId(req.params.id);
+        const customer = {
+            customerId: req.body.customerId,
+            name: req.body.name,
+            email: req.body.email,
+            age: req.body.age,
+            isActive: req.body.isActive
+        };
+        const response = await mongodb.getDatabase().db().collection('customers').updateOne(
+            { _id: customerId },
+            { $set: customer }
+        );
+        if (response.modifiedCount > 0) {
+            res.status(200).send();
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while updating the customer' });
     }
 };
 
 const deleteCustomer = async (req, res) => {
-    //#swagger.tags=['Customers']
-    if (!ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ error: 'Invalid customer ID' });
-    }
-
-    const customerId = new ObjectId(req.params.id);
-
+    //#swagger.tags=['Customers']    
     try {
+        if (!ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid customer ID' });
+        }
+    
+        const customerId = new ObjectId(req.params.id);
         const response = await mongodb.getDatabase().db().collection('customers').deleteOne({ _id: customerId });
         if (response.deletedCount > 0) {
             res.status(204).send();
         } else {
-            res.status(500).json(response.error || 'Error occurred while deleting the customer');
+            res.status(404).json('Customer not found');
         }
     } catch (error) {
         res.status(500).json({ error: 'Error deleting customer' });
