@@ -5,7 +5,7 @@ const doc = {
         title: "Week03 API",
         description: "Week03 API"
     },
-    host: "localhost:8080",
+    host: "localhost:3000",
     schemes: ["http", "https"]
 };
 

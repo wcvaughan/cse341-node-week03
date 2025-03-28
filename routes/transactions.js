@@ -1,5 +1,5 @@
 const express = require('express');
-
+const { requiresAuth } = require('express-openid-connect');
 const { getAll, getSingle, createTransaction, updateTransaction, deleteTransaction } = require('../controllers/transactions');
 const { validateTransaction, validateId, handleValidationErrors } = require('../middleware/validate');
 
@@ -11,10 +11,10 @@ router.get('/', getAll);
 
 router.get('/:id', validateId, handleValidationErrors, getSingle);
 
-router.post('/', validateTransaction, handleValidationErrors, createTransaction);
+router.post('/', requiresAuth(), validateTransaction, handleValidationErrors, createTransaction);
 
-router.put('/:id', validateId, validateTransaction, handleValidationErrors, updateTransaction);
+router.put('/:id', requiresAuth(), validateId, validateTransaction, handleValidationErrors, updateTransaction);
 
-router.delete('/:id', validateId, handleValidationErrors, deleteTransaction);
+router.delete('/:id', requiresAuth(), validateId, handleValidationErrors, deleteTransaction);
 
 module.exports = router;

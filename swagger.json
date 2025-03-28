@@ -5,23 +5,12 @@
     "description": "Week03 API",
     "version": "1.0.0"
   },
-  "host": "localhost:8080",
+  "host": "cse341-node-r7l4.onrender.com/",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
-    "/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/transactions/": {
       "get": {
         "tags": [
