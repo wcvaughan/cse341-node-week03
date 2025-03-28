@@ -1,11 +1,11 @@
 const mongodb = require('../db/connect');
-
+const { getCollection } = require('../db/collections');
 const ObjectId = require('mongodb').ObjectId;
 
 const getAll = async (req, res) => {
     //#swagger.tags=['Users']
     try {
-        const result = await mongodb.getDatabase().db().collection('users').find();
+        const result = await getCollection('users').find();
         result.toArray().then((users) => {
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(users);
@@ -20,7 +20,7 @@ const getSingle = async (req, res) => {
     const userId = new ObjectId(req.params.id);
 
     try {
-        const result = await mongodb.getDatabase().db().collection('users').findOne({ _id: userId });
+        const result = await getCollection('users').findOne({ _id: userId });
         if (!result) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -35,17 +35,29 @@ const getSingle = async (req, res) => {
 const createUser = async (req, res) => {
     //#swagger.tags=['Users']
     try {
+
+        const auth0Id = req.auth.payload.sub; // Auth0 user ID
+        const email = req.auth.payload.email; // users email from Auth0
+
+        // Check if user exists 
+        const existingUser = await getCollection('users').findOne({ auth0Id });
+
+        if (existingUser) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+
+        // Create new user
         const user = {
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password,
-            role: req.body.role,
-            isActive: req.body.isActive,
-            createdAt: new Date()
+            auth0Id,
+            email,
+            role: req.body.role || 'user',
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
-        const response = await mongodb.getDatabase().db().collection('users').insertOne(user);
+        const response = await getCollection('users').insertOne(user);
         if (response.acknowledged) {
-            res.status(200).send();
+            res.status(200).json({ message: 'User created successfully', user });
         }
     } catch (error) {
         console.error('Error creating user:', error);
@@ -58,14 +70,12 @@ const updateUser = async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
         const user = {
-            username: req.body.username,
             email: req.body.email,
-            password: req.body.password,
             role: req.body.role,
             isActive: req.body.isActive,
             updatedAt: new Date()
         };
-        const response = await mongodb.getDatabase().db().collection('users').updateOne(
+        const response = await getCollection('users').updateOne(
             { _id: userId },
             { $set: user }
         );
@@ -85,7 +95,7 @@ const deleteUser = async (req, res) => {
         }
     
         const userId = new ObjectId(req.params.id);
-        const response = await mongodb.getDatabase().db().collection('users').deleteOne({ _id: userId });
+        const response = await getCollection('users').deleteOne({ _id: userId });
         if (response.deletedCount > 0) {
             res.status(204).send();
         } else {

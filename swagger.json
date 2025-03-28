@@ -52,7 +52,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
+                "customerId": {
                   "example": "any"
                 },
                 "amount": {
@@ -134,7 +134,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
+                "customerId": {
                   "example": "any"
                 },
                 "amount": {
@@ -159,6 +159,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -224,19 +227,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "username": {
-                  "example": "any"
-                },
-                "email": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
-                },
                 "role": {
-                  "example": "any"
-                },
-                "isActive": {
                   "example": "any"
                 }
               }
@@ -249,6 +240,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
           },
           "500": {
             "description": "Internal Server Error"
@@ -306,13 +300,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "username": {
-                  "example": "any"
-                },
                 "email": {
-                  "example": "any"
-                },
-                "password": {
                   "example": "any"
                 },
                 "role": {
@@ -503,6 +491,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"

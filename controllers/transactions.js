@@ -1,11 +1,11 @@
 const mongodb = require('../db/connect');
-
+const { getCollection } = require('../db/collections');
 const ObjectId = require('mongodb').ObjectId;
 
 const getAll = async (req, res) => {
     //#swagger.tags=['Transactions']
     try {
-        const result = await mongodb.getDatabase().db().collection('transactions').find();
+        const result = await getCollection('transactions').find();
         result.toArray().then((transactions) => {
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(transactions);
@@ -20,7 +20,7 @@ const getSingle = async (req, res) => {
     const transactionId = new ObjectId(req.params.id);
 
     try {
-        const result = await mongodb.getDatabase().db().collection('transactions').findOne({ _id: transactionId});
+        const result = await getCollection('transactions').findOne({ _id: transactionId});
         if(!result) {
             res.status(404).json({ error: 'Transaction not found' });
         }
@@ -35,14 +35,14 @@ const createTransaction = async (req, res) => {
     //#swagger.tags=['Transactions']
     try {
         const transaction = {
-            userId: req.body.userId,
+            customerId: req.body.customerId,
             amount: req.body.amount,
             currency: req.body.currency,
             type: req.body.type,
             date: new Date(), // get the current timestamp
             status: req.body.status
         };
-        const response = await mongodb.getDatabase().db().collection('transactions').insertOne(transaction);
+        const response = await getCollection('transactions').insertOne(transaction);
         if (response.acknowledged) {
             res.status(200).send();
         }
@@ -57,17 +57,20 @@ const updateTransaction = async (req, res) => {
     try {
         const transactionId = new ObjectId(req.params.id);
         const transaction = {
-            userId: req.body.userId,
+            customerId: req.body.customerId,
             amount: req.body.amount,
             currency: req.body.currency,
             type: req.body.type,
             date: new Date(), // get the current timestamp
             status: req.body.status
         };
-        const response = await mongodb.getDatabase().db().collection('transactions').updateOne(
+        const response = await getCollection('transactions').updateOne(
             { _id: transactionId },
             { $set: transaction }
         );
+        if (response.matchedCount === 0) {
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
         if (response.modifiedCount > 0) {
             res.status(200).send();
         }
@@ -85,7 +88,7 @@ const deleteTransaction = async (req, res) => {
         }
     
         const transactionId = new ObjectId(req.params.id);
-        const response = await mongodb.getDatabase().db().collection('transactions').deleteOne({ _id: transactionId });
+        const response = await getCollection('transactions').deleteOne({ _id: transactionId });
         if (response.deletedCount > 0) {
             res.status(204).send();
         } else {

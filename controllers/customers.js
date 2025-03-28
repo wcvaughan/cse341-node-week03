@@ -1,11 +1,11 @@
 const mongodb = require('../db/connect');
-
+const { getCollection } = require('../db/collections');
 const ObjectId = require('mongodb').ObjectId;
 
 const getAll = async (req, res) => {
     //#swagger.tags=['Customers']
     try {
-        const result = await mongodb.getDatabase().db().collection('customers').find();
+        const result = await getCollection('customers').find();
         result.toArray().then((customers) => {
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(customers);
@@ -20,7 +20,7 @@ const getSingle = async (req, res) => {
     const customerId = new ObjectId(req.params.id);
 
     try {
-        const result = await mongodb.getDatabase().db().collection('customers').findOne({ _id: customerId });
+        const result = await getCollection('customers').findOne({ _id: customerId });
         if (!result) {
             return res.status(404).json({ error: 'Customer not found' });
         }
@@ -33,7 +33,7 @@ const getSingle = async (req, res) => {
 
 const createCustomer = async (req, res) => {
     //#swagger.tags=['Customers']
-    try {        
+    try {
         const customer = {
             customerId: req.body.customerId,
             name: req.body.name,
@@ -42,7 +42,7 @@ const createCustomer = async (req, res) => {
             createdAt: new Date(),
             isActive: req.body.isActive
         };
-        const response = await mongodb.getDatabase().db().collection('customers').insertOne(customer);
+        const response = await getCollection('customers').insertOne(customer);
         if (response.acknowledged) {
             res.status(200).send();
         }
@@ -62,11 +62,14 @@ const updateCustomer = async (req, res) => {
             age: req.body.age,
             isActive: req.body.isActive
         };
-        const response = await mongodb.getDatabase().db().collection('customers').updateOne(
+        const response = await getCollection('customers').updateOne(
             { _id: customerId },
             { $set: customer }
         );
-        if (response.modifiedCount > 0) {
+        if (response.matchedCount === 0) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        if (response.matchedCount > 0) {
             res.status(200).send();
         }
     } catch (error) {
@@ -80,9 +83,9 @@ const deleteCustomer = async (req, res) => {
         if (!ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: 'Invalid customer ID' });
         }
-    
+
         const customerId = new ObjectId(req.params.id);
-        const response = await mongodb.getDatabase().db().collection('customers').deleteOne({ _id: customerId });
+        const response = await getCollection('customers').deleteOne({ _id: customerId });
         if (response.deletedCount > 0) {
             res.status(204).send();
         } else {
